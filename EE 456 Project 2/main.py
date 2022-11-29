@@ -39,12 +39,14 @@ callbacks = [
              EarlyStopping(patience=2)
 ]
 
-history = model.fit(x_train,y_train, epochs=1,validation_data=(x_test,y_test),callbacks=callbacks)
+history = model.fit(x_train,y_train, epochs=3,validation_data=(x_test,y_test),callbacks=callbacks)
 
 import pandas as pd
+import matplotlib.pyplot as plt
 metrics_df = pd.DataFrame(history.history)
 
 metrics_df[["accuracy","val_accuracy"]].plot();
+plt.show()
 
 model.save("model.h5")
 
