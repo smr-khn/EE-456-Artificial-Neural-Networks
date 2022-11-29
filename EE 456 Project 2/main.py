@@ -4,16 +4,26 @@ import tensorflow as tf
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
 model = tf.keras.Sequential([
-    tf.keras.layers.Conv2D(32, (3,3), padding='same', activation="relu",input_shape=(32, 32, 3)),
+    tf.keras.layers.Conv2D(32, (3,3), padding='same',input_shape=(32, 32, 3)),
+    tf.keras.layers.ReLU(),
     tf.keras.layers.MaxPooling2D((2, 2), strides=2),
 
-    tf.keras.layers.Conv2D(32, (3,3), padding='same', activation="relu"),
+    tf.keras.layers.Conv2D(64, (3,3), padding='same'),
+    tf.keras.layers.ReLU(),
     tf.keras.layers.MaxPooling2D((2, 2), strides=2),
 
-    tf.keras.layers.Conv2D(32, (3,3), padding='same', activation="relu"),
+    tf.keras.layers.Conv2D(64, (3,3), padding='same'),
+    tf.keras.layers.ReLU(),
+
+    tf.keras.layers.Conv2D(64, (3,3), padding='same'),
+    tf.keras.layers.ReLU(),
+
+    tf.keras.layers.Conv2D(64, (3,3), padding='same'),
+    tf.keras.layers.ReLU(),
     tf.keras.layers.MaxPooling2D((2, 2), strides=2),
 
     tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(100, activation="relu"),
     tf.keras.layers.Dense(100, activation="relu"),
     tf.keras.layers.Dense(10, activation="softmax")
 ])
