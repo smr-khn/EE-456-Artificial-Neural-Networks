@@ -47,13 +47,12 @@ model.summary()
 #compiles layers into a cohesive model
 model.compile(optimizer='adam',loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),metrics=['accuracy'])
 
-#creates a stopping criterion if the model does not improve accuracy after 2 epochs
-from tensorflow.keras.callbacks import EarlyStopping
-callbacks = [EarlyStopping(patience=2)]
+#creates a stopping criterion if the model does not improve validation loss after x epochs
+callbacks = tf.keras.callbacks.EarlyStopping(patience=10)
 
 #trains model for x epochs using training data and also validates it against validation data every epoch
 #!!!!comment next line if running pretrained model!!!!
-history = model.fit(data_train,label_train, epochs=2,validation_data=(data_test,label_test),callbacks = callbacks)
+history = model.fit(data_train,label_train, epochs=10,validation_data=(data_test,label_test),callbacks = callbacks)
 
 
 #!!!!uncomment next two lines when running pretrained model!!!!
