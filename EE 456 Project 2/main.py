@@ -42,7 +42,6 @@ from tensorflow.keras.callbacks import EarlyStopping
 callbacks = [
              EarlyStopping(patience=2)
 ]
-<<<<<<< HEAD
 #trains model for x epochs using training data and also validates it against validation data every epoch
 history = model.fit(data_train,label_train, epochs=5,validation_data=(data_test,label_test),callbacks=callbacks)
 #get class probabilities of each training data image
@@ -52,19 +51,9 @@ test_predictions = np.argmax(test_predictions, axis = 1)
 
 import pandas as pd
 #use pandas to create Loss vs Epoch and Accuracy vs Epoch for both training and validation test sets
-=======
-
-history = model.fit(x_train,y_train, epochs=3,validation_data=(x_test,y_test),callbacks=callbacks)
-
-import pandas as pd
-import matplotlib.pyplot as plt
->>>>>>> b5136567fbcf6ffd1cdbd84e9e6b0261b7972ae2
 metrics_df = pd.DataFrame(history.history)
 metrics_df[["accuracy","val_accuracy"]].plot();
-<<<<<<< HEAD
 metrics_df[["loss","val_loss"]].plot();
-=======
->>>>>>> b5136567fbcf6ffd1cdbd84e9e6b0261b7972ae2
 plt.show()
 
 print("Confusion Matrix:")
