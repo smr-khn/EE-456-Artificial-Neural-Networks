@@ -7,7 +7,7 @@ import numpy as np
 #normalize color channels of images
 data_train, data_test = data_train / 255.0, data_test / 255.0
 
-#model architecture for RCNN
+#model architecture for R-CNN
 model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(32, (3,3), padding='same',input_shape=(32, 32, 3)),
     tf.keras.layers.ReLU(),
@@ -20,10 +20,10 @@ model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(64, (3,3), padding='same'),
     tf.keras.layers.ReLU(),
 
-    tf.keras.layers.Conv2D(64, (3,3), padding='same'),
+    tf.keras.layers.Conv2D(128, (3,3), padding='same'),
     tf.keras.layers.ReLU(),
 
-    tf.keras.layers.Conv2D(64, (3,3), padding='same'),
+    tf.keras.layers.Conv2D(128, (3,3), padding='same'),
     tf.keras.layers.ReLU(),
     tf.keras.layers.MaxPooling2D((2, 2), strides=2),
 
@@ -36,14 +36,9 @@ model = tf.keras.Sequential([
 #summary of all layers and weights of CNN
 model.summary()
 
-#??
+#compiles layers into a cohesive model
 model.compile(optimizer='adam',loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),metrics=['accuracy'])
 
-#??
-from tensorflow.keras.callbacks import EarlyStopping
-callbacks = [
-             EarlyStopping(patience=2)
-]
 #trains model for x epochs using training data and also validates it against validation data every epoch
 history = model.fit(data_train,label_train, epochs=5,validation_data=(data_test,label_test),callbacks=callbacks)
 #get class probabilities of each training data image
