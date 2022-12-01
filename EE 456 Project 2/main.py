@@ -12,7 +12,7 @@ from sklearn.metrics import precision_recall_fscore_support as score
 #normalize color channels of images
 data_train, data_test = data_train / 255.0, data_test / 255.0
 
-#model architecture for R-CNN
+#model architecture for R-CNN based on AlexNet
 model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(32, (3,3), padding='same',input_shape=(32, 32, 3)),
     tf.keras.layers.ReLU(),
