@@ -36,8 +36,10 @@ model = tf.keras.Sequential([
 #summary of all layers and weights of CNN
 model.summary()
 
+#??
 model.compile(optimizer='adam',loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),metrics=['accuracy'])
 
+#??
 from tensorflow.keras.callbacks import EarlyStopping
 callbacks = [
              EarlyStopping(patience=2)
@@ -52,12 +54,13 @@ test_predictions = np.argmax(test_predictions, axis = 1)
 import pandas as pd
 #use pandas to create Loss vs Epoch and Accuracy vs Epoch for both training and validation test sets
 metrics_df = pd.DataFrame(history.history)
-metrics_df[["accuracy","val_accuracy"]].plot();
-metrics_df[["loss","val_loss"]].plot();
+metrics_df[["accuracy","val_accuracy"]].plot()
+metrics_df[["loss","val_loss"]].plot()
 plt.show()
 
-print("Confusion Matrix:")
+#graph confusion matrix in terminal
 results = tf.math.confusion_matrix(label_test, test_predictions, 10)
+print("Confusion Matrix:", results)
 
 #Saving the Model for use later
 model.save("model.h5")
