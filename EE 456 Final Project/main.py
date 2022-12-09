@@ -10,14 +10,18 @@ from tensorflow.keras.layers import Dense, InputLayer, Dropout, Flatten, Reshape
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, GlobalMaxPooling2D
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.callbacks import ModelCheckpoint
-lrelu = tf.keras.layers.LeakyReLU(alpha=0.1)
-
 import tensorflow as tf
+lrelu = tf.keras.layers.LeakyReLU(alpha=0.1)
+import fiftyone
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.metrics import precision_recall_fscore_support as score
 #Libraries used: tensorflow, matplotlib, numpy, pandas, graphviz, pydot, pydotplus, scikit learn
+
+
 
 #This is all from reference 2
 class Yolo_Reshape(tf.keras.layers.Layer):
@@ -60,13 +64,40 @@ class Yolo_Reshape(tf.keras.layers.Layer):
 
 
 #load data set 
+datasetTrain = fiftyone.zoo.load_zoo_dataset(
+              "open-images-v6",
+              split="train",
+              label_types=["detections"],
+              classes=["Car", "Truck", "Stop sign"],
+              max_samples=100,
+          )
+datasetTest = fiftyone.zoo.load_zoo_dataset(
+              "open-images-v6",
+              split="test",
+              label_types=["detections"],
+              classes=["Car", "Truck", "Stop sign"],
+              max_samples=100,
+          )
+datasetValid = fiftyone.zoo.load_zoo_dataset(
+              "open-images-v6",
+              split="validation",
+              label_types=["detections"],
+              classes=["Car", "Truck", "Stop sign"],
+              max_samples=100,
+          )
 #Classes: 1-airplane, 2-automobile, 3-bird, 4-cat, 5-deer, 6-dog, 7-frog, 8-horse, 9-ship, 10-truck
 
-(data_train, label_train), (data_test, label_test) = tf.keras.datasets.cifar10.load_data()
 #normalize color channels of images
-data_train, data_test = data_train / 255.0, data_test / 255.0
+#data_train, data_test = data_train / 255.0, data_test / 255.0
 
-#model architecture for R-CNN based on AlexNet
+#model architecture for R-CNN based on YOLOv1
+nb_boxes=1
+grid_w=7
+grid_h=7
+cell_w=64
+cell_h=64
+img_w=grid_w*cell_w
+img_h=grid_h*cell_h
 model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(filters=64, kernel_size= (7, 7), strides=(1, 1), input_shape =(img_h, img_w, 3), padding = 'same', activation=lrelu, kernel_regularizer=l2(5e-4)),
     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding = 'same'),
@@ -233,7 +264,7 @@ callbacks = mcp_save
 
 #trains model for x epochs using training data and also validates it against validation data every epoch
 #!!!!comment next line if running pretrained model!!!!
-history = model.fit(data_train,label_train, epochs=10,validation_data=,callbacks = callbacks)
+#history = model.fit(data_train,label_train, epochs=10,validation_data=,callbacks = callbacks)
 
 
 #!!!!uncomment next two lines when running pretrained model!!!!
