@@ -13,7 +13,7 @@ from luketils import visualization
 from keras_cv import layers as cv_layers
 
 BATCH_SIZE = 16
-EPOCHS = int(os.getenv("EPOCHS", "1"))
+EPOCHS = int(os.getenv("EPOCHS", "2"))
 CHECKPOINT_PATH = os.getenv("CHECKPOINT_PATH", "checkpoint/")
 INFERENCE_CHECKPOINT_PATH = os.getenv("INFERENCE_CHECKPOINT_PATH", CHECKPOINT_PATH)
 
@@ -23,7 +23,7 @@ val_ds, val_ds_info = load.load(split="validation", bounding_box_format="xywh", 
 
 #https://github.com/keras-team/keras-io/blob/master/guides/keras_cv/retina_net_overview.py
 class_ids = ["Aeroplane","Bicycle","Bird","Boat","Bottle","Bus","Car","Cat","Chair","Cow","Dining Table","Dog","Horse",
-             "Motorcycle","Person","Potted Plant","Sheep","Sofa","Train","TV Monitor","Total",]
+             "Motorcycle","Human","Potted Plant","Sheep","Sofa","Train","TV Monitor","Total",]
 class_mapping = dict(zip(range(len(class_ids)), class_ids))
 
 def visualize_dataset(dataset, bounding_box_format):
@@ -43,4 +43,72 @@ def visualize_dataset(dataset, bounding_box_format):
         class_mapping=class_mapping,
     )
 
-visualize_dataset(train_ds, bounding_box_format="xywh")
+#visualize_dataset(train_ds, bounding_box_format="xywh")
+
+#augment data to make more images by flipping and r
+random_flip = keras_cv.layers.RandomFlip(mode="horizontal", bounding_box_format="xywh")
+rand_augment = keras_cv.layers.RandAugment(value_range=(0, 255),augmentations_per_image=2,geometric=False)
+def augment(inputs):
+    inputs["images"] = rand_augment(inputs["images"])
+    inputs = random_flip(inputs)
+    return inputs
+
+train_ds = train_ds.map(augment,num_parallel_calls=tf.data.AUTOTUNE)
+#batch train set, cannot run augmentation with batched dataset
+#visualize_dataset(train_ds, bounding_box_format="xywh")
+
+#unpack inputs into tuples
+def dict_to_tuple(inputs):
+    return inputs["images"], inputs["bounding_boxes"]
+
+train_ds = train_ds.map(dict_to_tuple, num_parallel_calls=tf.data.AUTOTUNE)
+val_ds = val_ds.map(dict_to_tuple, num_parallel_calls=tf.data.AUTOTUNE)
+
+train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
+val_ds = val_ds.prefetch(tf.data.AUTOTUNE)
+
+#create model
+model = keras_cv.models.RetinaNet(
+    classes=20,
+    bounding_box_format="xywh",
+    backbone="resnet50",
+    backbone_weights="imagenet",
+    include_rescaling=True,
+    evaluate_train_time_metrics=False,
+)
+model.backbone.trainable = False
+
+#compile model
+optimizer = tf.optimizers.SGD(global_clipnorm=10.0)
+model.compile(
+    classification_loss=keras_cv.losses.FocalLoss(from_logits=True, reduction="none"),
+    box_loss=keras_cv.losses.SmoothL1Loss(l1_cutoff=1.0, reduction="none"),
+    optimizer=optimizer,
+    metrics=[
+        keras_cv.metrics.COCOMeanAveragePrecision(
+            class_ids=range(20),
+            bounding_box_format="xywh",
+            name="Mean Average Precision",
+        ),
+        keras_cv.metrics.COCORecall(
+            class_ids=range(20),
+            bounding_box_format="xywh",
+            max_detections=100,
+            name="Recall",
+        ),
+    ],
+)
+
+callbacks = [
+    keras.callbacks.TensorBoard(log_dir="logs"),
+    keras.callbacks.ReduceLROnPlateau(patience=5),
+    # Uncomment to train your own RetinaNet
+    keras.callbacks.ModelCheckpoint(CHECKPOINT_PATH, save_weights_only=True),
+]
+
+model.fit(
+    train_ds,
+    validation_data=val_ds.take(20),
+    epochs=EPOCHS,
+    callbacks=callbacks,
+)

@@ -101,7 +101,8 @@ def load(
         dataset = dataset.shuffle(shuffle_buffer, reshuffle_each_iteration=True)
 
     if batch_size is not None:
-        dataset = dataset.apply(
-            tf.data.experimental.dense_to_ragged_batch(batch_size=batch_size)
-        )
+        #dataset = dataset.apply(
+        #    tf.data.experimental.dense_to_ragged_batch(batch_size=batch_size)
+        #)
+        tf.data.Dataset.batch(dataset, batch_size=batch_size)
     return dataset, dataset_info
