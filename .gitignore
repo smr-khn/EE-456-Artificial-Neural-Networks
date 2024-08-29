@@ -1,5 +1,6 @@
 # ignore images and files in retinanet and zip
-*.jpg
+#*.jpg
 retinanet/
-photosDetected/
+#photosDetected/
 *.zip
+FinalProjectExplanation.mp4
