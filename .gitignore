@@ -1,3 +1,4 @@
 # ignore images and files in retinanet
 *.jpg
 retinanet/
+*.zip
