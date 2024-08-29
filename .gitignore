@@ -1,0 +1,5 @@
+# ignore images and files in retinanet and zip
+*.jpg
+retinanet/
+photosDetected/
+*.zip
